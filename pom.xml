@@ -38,9 +38,9 @@
 
     <!-- needed for dev mode scanning -->
     <dependency>
-      <groupId>nz.ac.auckland.common</groupId>
-      <artifactId>common-scanner</artifactId>
-      <version>[1.5,2)</version>
+      <groupId>com.bluetrainsoftware</groupId>
+      <artifactId>classpath-scanner</artifactId>
+      <version>[1,2)</version>
     </dependency>
   </dependencies>
 </project>
