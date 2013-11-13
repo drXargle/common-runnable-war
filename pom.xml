@@ -9,9 +9,9 @@
 
   <groupId>nz.ac.auckland.common</groupId>
   <artifactId>runnable-war</artifactId>
-  <version>4.3-SNAPSHOT</version>
+  <version>5.1-SNAPSHOT</version>
   <packaging>jar</packaging>
-  <name>runnable-webapp</name>
+  <name>runnable-war</name>
 
   <description>
     Provides a library for running a Jetty based application server and a WAR overlay for enabling a runnable jar.

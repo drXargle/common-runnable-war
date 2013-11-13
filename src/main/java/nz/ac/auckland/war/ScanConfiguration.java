@@ -5,7 +5,6 @@ import com.bluetrainsoftware.classpathscanner.ResourceScanListener;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.ResourceCollection;
 import org.eclipse.jetty.webapp.AbstractConfiguration;
-import org.eclipse.jetty.webapp.MetaData;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebInfConfiguration;
 import org.slf4j.Logger;
@@ -50,14 +49,26 @@ public class ScanConfiguration extends AbstractConfiguration {
 						}
 					} else if (scanResource.resourceName.equals(META_INF_RESOURCES_WEB_INF_WEB_XML)) {
 							// need to add offseturl + /META-INF/resources
-						Resource base = Resource.newResource(scanResource.newOffset("META-INF/resources"));
+						URL resolvedUrl = scanResource.newOffset("META-INF/resources");
+						if (log.isDebugEnabled()) {
+							log.debug("webapp.scan: found resource via resource/web.xml {}", resolvedUrl.toString());
+						}
+						Resource base = Resource.newResource(resolvedUrl);
 						context.setBaseResource(base);
 					} else if (scanResource.resourceName.equals("META-INF/web-fragment.xml")) {
 						// don't worry about adding the resource as it may not even be there
+						URL resolvedUrl = scanResource.getResolvedUrl();
+						if (log.isDebugEnabled()) {
+							log.debug("webapp.scan: found web fragment {}", resolvedUrl.toString());
+						}
 						context.getMetaData().addFragment(Resource.newResource(scanResource.offsetUrl),
-							Resource.newResource(scanResource.getResolvedUrl()));
+							Resource.newResource(resolvedUrl));
 					} else if (isWebResourceBase(scanResource)) {
-						resources.add(Resource.newResource(scanResource.getResolvedUrl()));
+						URL resolvedUrl = scanResource.getResolvedUrl();
+						if (log.isDebugEnabled()) {
+							log.debug("webapp.scan: found resource {}", resolvedUrl.toString());
+						}
+						resources.add(Resource.newResource(resolvedUrl));
 					}
 				}
 				return null;
@@ -87,6 +98,11 @@ public class ScanConfiguration extends AbstractConfiguration {
 	protected void foundWebXml(ResourceScanListener.ScanResource scanResource, WebAppContext context) throws Exception {
 		if (context.getMetaData().getWebXml() == null) {
 			webXml = Resource.newResource(scanResource.getResolvedUrl());
+
+			if (log.isDebugEnabled()) {
+				log.debug("webapp.scan: found web.xml {}", webXml.toString());
+			}
+
 			context.getMetaData().setWebXml(webXml);
 		} else {
 			log.info("Found extra web.xml, ignoring {}", scanResource.getResolvedUrl().toString());
