@@ -41,8 +41,6 @@ public class WebAppRunner {
 	public static final String WEBDEFAULT_XML = "nz/ac/auckland/war/webdefault.xml";
 	public static final String WEBDEFAULT_DEV_XML = "nz/ac/auckland/war/webdefault-dev.xml";
 
-	public static final String DEVMODE = "webapp.devmode";
-
 	protected static final int WEBAPP_HTTP_PORT_DEFAULT = 8090;
 	protected static final int WEBAPP_SHUTDOWN_TIMEOUT_DEFAULT = 12000;
 	protected static final String WEBAPP_CONTEXT_DEFAULT = "/";
@@ -75,10 +73,6 @@ public class WebAppRunner {
 	 * @param war - the WAR file or NULL if we are in dev mode.
 	 */
 	public static void run(File war, String[] args) {
-		if (war == null) {
-			System.setProperty(DEVMODE, "true"); // no war directory, automatically assume dev mode
-		}
-
 		new WebAppRunner(war).run();
 	}
 
@@ -143,8 +137,6 @@ public class WebAppRunner {
 			context.setClassLoader(this.getClass().getClassLoader());
 
 			webDefaultXml = WEBDEFAULT_DEV_XML;
-
-			System.setProperty(DEVMODE, "true"); // no war directory, automatically assume dev mode
 		} else if (war.isDirectory()) {
 			context.setBaseResource(Resource.newResource(war.toURI().toURL()));
 		} else {

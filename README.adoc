@@ -1,0 +1,4 @@
+= Common Runnable War
+
+- Expects its static "run" method to be called with or without a war file attached. If no war file is attached, it will
+use the "dev" webdefault.xml instead of the "prod" webdefault.xml.

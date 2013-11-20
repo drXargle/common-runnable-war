@@ -79,13 +79,8 @@ public class ScanConfiguration extends AbstractConfiguration {
 			}
 
 			@Override
-			public boolean isInteresting(URL url) {
-				return true;
-			}
-
-			@Override
-			public boolean removeListenerOnScanCompletion() {
-				return true;
+			public InterestAction isInteresting(InterestingResource interestingResource) {
+				return InterestAction.ONCE;
 			}
 		};
 

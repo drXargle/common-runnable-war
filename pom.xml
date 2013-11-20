@@ -2,9 +2,9 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>nz.ac.auckland</groupId>
-    <artifactId>uoa-java-parent</artifactId>
-    <version>2.6</version>
+    <groupId>nz.ac.auckland.groupapps.parent</groupId>
+    <artifactId>parent-java-groupapps-central</artifactId>
+    <version>1.2</version>
   </parent>
 
   <groupId>nz.ac.auckland.common</groupId>
@@ -14,7 +14,7 @@
   <name>runnable-war</name>
 
   <description>
-    Provides a library for running a Jetty based application server and a WAR overlay for enabling a runnable jar.
+    Provides a library for running a Jetty based web server and a for enabling a runnable jar.
   </description>
 
   <dependencies>
@@ -36,7 +36,7 @@
       <version>[3,)</version>
     </dependency>
 
-    <!-- needed for dev mode scanning -->
+    <!-- jetty's scanner is not good enough, or efficient enough -->
     <dependency>
       <groupId>com.bluetrainsoftware</groupId>
       <artifactId>classpath-scanner</artifactId>
