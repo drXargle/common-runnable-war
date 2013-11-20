@@ -82,6 +82,10 @@ public class ScanConfiguration extends AbstractConfiguration {
 			public InterestAction isInteresting(InterestingResource interestingResource) {
 				return InterestAction.ONCE;
 			}
+
+			@Override
+			public void scanAction(ScanAction action) {
+			}
 		};
 
 		ClasspathScanner scanner = ClasspathScanner.getInstance();
