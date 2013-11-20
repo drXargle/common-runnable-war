@@ -62,6 +62,7 @@ public class WebAppRunner {
 	private StatisticsHandler statistics;
 	private WebAppContext context;
 	private WebAppLockFile lockfile;
+	private int port;
 
 	/* historical reasons */
 	public static void run(File war) {
@@ -110,7 +111,8 @@ public class WebAppRunner {
 		ServerConnector connector = new ServerConnector(server,
 			new HttpConnectionFactory(httpConfig));
 
-		connector.setPort(Integer.getInteger(WEBAPP_HTTP_PORT_PROPERTY, WEBAPP_HTTP_PORT_DEFAULT));
+		port = Integer.getInteger(WEBAPP_HTTP_PORT_PROPERTY, WEBAPP_HTTP_PORT_DEFAULT);
+		connector.setPort(port);
 		server.addConnector(connector);
 	}
 
@@ -378,7 +380,7 @@ public class WebAppRunner {
 				stdin.start();
 			}
 
-			log.info("WebApp container is up and running");
+			log.info("WebApp container is up and running on port {}", port);
 			try {
 				latch.await();
 			} catch (InterruptedException e) {
