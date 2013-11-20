@@ -36,6 +36,7 @@ public class WebAppRunner {
 	public static final String WEBAPP_WEBDEFAULT_XML_LOCATION = "webapp.webdefaultxml";
 	public static final String WEBAPP_SECURE_COOKIES_PROPERTY = "webapp.cookies.secure";
 	public static final String WEBAPP_EXTRA_CONFIGURATION_CLASSES = "webapp.configClasses";
+	public static final String WEBAPP_WAR_FILENAME = "webapp.warFile";
 
 
 	public static final String WEBDEFAULT_XML = "nz/ac/auckland/war/webdefault.xml";
@@ -80,6 +81,10 @@ public class WebAppRunner {
 	 * @param war the WAR file or NULL if we are in dev mode. Can be a directory. With Servlet3 spec, this doesn't even need to contain the web.xml!
 	 */
 	public WebAppRunner(File war) {
+		if (war != null) {
+			System.setProperty(WEBAPP_WAR_FILENAME, war.toURI().toString());
+		}
+
 		this.war = war;
 	}
 
