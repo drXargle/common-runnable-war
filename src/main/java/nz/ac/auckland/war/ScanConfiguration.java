@@ -22,8 +22,6 @@ import java.util.List;
 public class ScanConfiguration extends AbstractConfiguration {
 	private Logger log = LoggerFactory.getLogger(getClass());
 
-	private static final String META_INF_RESOURCES_WEB_INF_WEB_XML = "META-INF/resources/WEB-INF/web.xml";
-
 	public static Resource webXml;
 
 	@Override
@@ -41,28 +39,27 @@ public class ScanConfiguration extends AbstractConfiguration {
 			@Override
 			public List<ScanResource> resource(List<ScanResource> scanResources) throws Exception {
 				for (ScanResource scanResource : scanResources) {
-					if (scanResource.resourceName.equals("WEB-INF/web.xml")) {
+					if ("WEB-INF/web.xml".equals(scanResource.resourceName)) {
 						foundWebXml(scanResource, context);
 
 						if (context.getBaseResource() == null) {
 								context.setBaseResource(Resource.newResource(scanResource.offsetUrl));  // add base directory
 						}
-					} else if (scanResource.resourceName.equals(META_INF_RESOURCES_WEB_INF_WEB_XML)) {
+					} else if ("META-INF/resources/WEB-INF/web.xml".equals(scanResource.resourceName)) {
 							// need to add offseturl + /META-INF/resources
-						URL resolvedUrl = scanResource.newOffset("META-INF/resources");
-						if (log.isDebugEnabled()) {
-							log.debug("webapp.scan: found resource via resource/web.xml {}", resolvedUrl.toString());
-						}
-						Resource base = Resource.newResource(resolvedUrl);
-						context.setBaseResource(base);
-					} else if (scanResource.resourceName.equals("META-INF/web-fragment.xml")) {
+						foundWebXml(scanResource, context);
+					} else if ("META-INF/web-fragment.xml".equals(scanResource.resourceName)) {
 						// don't worry about adding the resource as it may not even be there
 						URL resolvedUrl = scanResource.getResolvedUrl();
+
 						if (log.isDebugEnabled()) {
 							log.debug("webapp.scan: found web fragment {}", resolvedUrl.toString());
 						}
-						context.getMetaData().addFragment(Resource.newResource(scanResource.offsetUrl),
-							Resource.newResource(resolvedUrl));
+
+						Resource fragmentResource = Resource.newResource(scanResource.offsetUrl);
+
+						context.getMetaData().addWebInfJar(fragmentResource);
+						context.getMetaData().addFragment(fragmentResource, Resource.newResource(resolvedUrl));
 					} else if (isWebResourceBase(scanResource)) {
 						URL resolvedUrl = scanResource.getResolvedUrl();
 						if (log.isDebugEnabled()) {
@@ -80,11 +77,19 @@ public class ScanConfiguration extends AbstractConfiguration {
 
 			@Override
 			public InterestAction isInteresting(InterestingResource interestingResource) {
-				return InterestAction.ONCE;
+				String url = interestingResource.url.toString();
+				if (url.contains("jre") || url.contains("jdk")) {
+					return InterestAction.NONE;
+				} else {
+					return InterestAction.ONCE;
+				}
 			}
 
 			@Override
 			public void scanAction(ScanAction action) {
+				if (action == ScanAction.COMPLETE) {
+					context.getMetaData().orderFragments();
+				}
 			}
 		};
 
@@ -117,7 +122,7 @@ public class ScanConfiguration extends AbstractConfiguration {
 	 * @return
 	 */
 	protected boolean isWebResourceBase(ResourceScanListener.ScanResource scanResource) {
-		return scanResource.resourceName.equals("META-INF/resource") ||
+		return scanResource.resourceName.equals("META-INF/resources") ||
 			(scanResource.file == null && scanResource.offsetUrl.toString().endsWith("!WEB-INF/classes/")) ||
 			(scanResource.file != null && scanResource.file.isDirectory() &&
 				( scanResource.file.getAbsolutePath().endsWith("/src/main/webapp") ||
