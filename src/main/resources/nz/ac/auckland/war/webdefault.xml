@@ -19,13 +19,6 @@
     This file is applied to a Web application before it's own WEB-INF/web.xml file
   </description>
 
-  <context-param>
-    <param-name>org.mortbay.jetty.webapp.NoTLDJarPattern</param-name>
-    <param-value>
-      start.jar|ant-.*\.jar|dojo-.*\.jar|jetty-.*\.jar|jsp-api-.*\.jar|junit-.*\.jar|servlet-api-.*\.jar|dnsns\.jar|rt\.jar|jsse\.jar|tools\.jar|sunpkcs11\.jar|sunjce_provider\.jar|xerces.*\.jar
-    </param-value>
-  </context-param>
-
   <!-- ==================================================================== -->
   <!-- The default servlet.                                                 -->
   <!-- This servlet, normally mapped to /, provides the handling for static -->
@@ -142,16 +135,20 @@
     </init-param>
     <init-param>
       <param-name>development</param-name>
-      <param-value>true</param-value>
+      <param-value>false</param-value>
     </init-param>
     <init-param>
       <param-name>modificationTestInterval</param-name>
-      <param-value>60</param-value>
+      <param-value>0</param-value>
     </init-param>
     <init-param>
       <param-name>trimSpaces</param-name>
       <param-value>true</param-value>
     </init-param>
+	  <init-param>
+		  <param-name>usePrecompiled</param-name>
+		  <param-value>true</param-value>
+	  </init-param>
     <load-on-startup>0</load-on-startup>
   </servlet>
 

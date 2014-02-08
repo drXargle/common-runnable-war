@@ -131,17 +131,15 @@ public class WebAppRunner {
 
 		context = new WebApplicationSimpleContext(war == null ? "devmode" : war.toString(), System.getProperty(WEBAPP_CONTEXT_PROPERTY, WEBAPP_CONTEXT_DEFAULT));
 
+		context.setClassLoader(this.getClass().getClassLoader());
+
 		if (war == null) {
 			// determine if the current class's class loader is a parent of the current thread's class loader.
 			// if so, use the current thread, otherwise use the current class
 
 			if (walkClasspathParentToFind(Thread.currentThread().getContextClassLoader())) {
 				context.setClassLoader(Thread.currentThread().getContextClassLoader());
-			} else {
-				context.setClassLoader(getClass().getClassLoader());
 			}
-
-			context.setClassLoader(this.getClass().getClassLoader());
 
 			webDefaultXml = WEBDEFAULT_DEV_XML;
 		} else if (war.isDirectory()) {
