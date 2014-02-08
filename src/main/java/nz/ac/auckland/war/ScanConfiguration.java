@@ -123,6 +123,7 @@ public class ScanConfiguration extends AbstractConfiguration {
 	 */
 	protected boolean isWebResourceBase(ResourceScanListener.ScanResource scanResource) {
 		return scanResource.resourceName.equals("META-INF/resources") ||
+		   scanResource.resourceName.equals("META-INF/resources/") ||
 			(scanResource.file == null && scanResource.offsetUrl.toString().endsWith("!WEB-INF/classes/")) ||
 			(scanResource.file != null && scanResource.file.isDirectory() &&
 				( scanResource.file.getAbsolutePath().endsWith("/src/main/webapp") ||
