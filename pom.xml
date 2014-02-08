@@ -9,7 +9,7 @@
 
   <groupId>nz.ac.auckland.groupapps.common</groupId>
   <artifactId>runnable-war</artifactId>
-  <version>1.1-SNAPSHOT</version>
+  <version>1.1</version>
   <packaging>jar</packaging>
   <name>runnable-war</name>
 
@@ -43,4 +43,8 @@
       <version>[1,2)</version>
     </dependency>
   </dependencies>
+
+  <scm>
+    <tag>runnable-war-1.1</tag>
+  </scm>
 </project>
