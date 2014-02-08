@@ -17,6 +17,13 @@
     Provides a library for running a Jetty based web server and a for enabling a runnable jar.
   </description>
 
+	<scm>
+		<connection>scm:git:git@github.com:uoa-group-applications/runnable-war</connection>
+		<developerConnection>scm:git:git@github.com:uoa-group-applications/runnable-war</developerConnection>
+		<url>http://github.com/uoa-group-applications/runnable-war</url>
+		<tag>HEAD</tag>
+	</scm>
+
   <dependencies>
     <dependency>
       <groupId>nz.ac.auckland.composite</groupId>
