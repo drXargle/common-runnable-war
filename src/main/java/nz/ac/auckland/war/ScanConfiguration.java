@@ -10,7 +10,9 @@ import org.eclipse.jetty.webapp.WebInfConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,7 +63,8 @@ public class ScanConfiguration extends AbstractConfiguration {
 						context.getMetaData().addWebInfJar(fragmentResource);
 						context.getMetaData().addFragment(fragmentResource, Resource.newResource(resolvedUrl));
 					} else if (isWebResourceBase(scanResource)) {
-						URL resolvedUrl = scanResource.getResolvedUrl();
+						URL resolvedUrl =  morphDevelopmentResource(scanResource);
+
 						if (log.isDebugEnabled()) {
 							log.debug("webapp.scan: found resource {}", resolvedUrl.toString());
 						}
@@ -128,6 +131,24 @@ public class ScanConfiguration extends AbstractConfiguration {
 			(scanResource.file != null && scanResource.file.isDirectory() &&
 				( scanResource.file.getAbsolutePath().endsWith("/src/main/webapp") ||
 				scanResource.file.getAbsolutePath().endsWith("/src/test/webapp")  ));
+	}
+
+	protected URL morphDevelopmentResource(ResourceScanListener.ScanResource scanResource) {
+		URL resolved = scanResource.getResolvedUrl();
+
+		if (scanResource.file != null && scanResource.file.isDirectory()) {
+			try {
+				if (scanResource.file.getPath().endsWith("/target/test-classes/META-INF/resources")) {
+					resolved = new File(scanResource.file.getParentFile().getParentFile().getParentFile().getParentFile(), "src/test/resources/META-INF/resources").toURI().toURL();
+				} else if (scanResource.file.getPath().endsWith("/target/classes/META-INF/resources")) {
+					resolved = new File(scanResource.file.getParentFile().getParentFile().getParentFile().getParentFile(), "src/main/resources/META-INF/resources").toURI().toURL();
+				}
+			} catch (MalformedURLException mue) {
+				log.error("Unable to morph {} to development resource, this is unexpected, be warned!", resolved.toString());
+			}
+		}
+
+		return resolved;
 	}
 
 	@Override

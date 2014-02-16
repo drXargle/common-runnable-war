@@ -192,15 +192,4 @@
     </web-resource-collection>
     <auth-constraint/>
   </security-constraint>
-
-  <security-constraint>
-    <web-resource-collection>
-      <web-resource-name>Disallow access to internals</web-resource-name>
-      <url-pattern>/EXT-INF/*</url-pattern>
-      <url-pattern>/WebAppBooter.class</url-pattern>
-      <url-pattern>/WebAppBooter$DelayHook.class</url-pattern>
-      <url-pattern>/WebAppBooter$UniqueProperties.class</url-pattern>
-    </web-resource-collection>
-    <auth-constraint/>
-  </security-constraint>
 </web-app>
