@@ -27,7 +27,7 @@ public class ScanConfiguration extends AbstractConfiguration {
 	public static Resource webXml;
 
 	@Override
-  public void preConfigure(final WebAppContext context) throws Exception {
+	public void preConfigure(final WebAppContext context) throws Exception {
 		List<Resource> theResources = (List<Resource>) context.getAttribute(WebInfConfiguration.RESOURCE_URLS);
 
 		if (theResources == null) {
@@ -45,10 +45,10 @@ public class ScanConfiguration extends AbstractConfiguration {
 						foundWebXml(scanResource, context);
 
 						if (context.getBaseResource() == null) {
-								context.setBaseResource(Resource.newResource(scanResource.offsetUrl));  // add base directory
+							context.setBaseResource(Resource.newResource(scanResource.offsetUrl));  // add base directory
 						}
 					} else if ("META-INF/resources/WEB-INF/web.xml".equals(scanResource.resourceName)) {
-							// need to add offseturl + /META-INF/resources
+						// need to add offseturl + /META-INF/resources
 						foundWebXml(scanResource, context);
 					} else if ("META-INF/web-fragment.xml".equals(scanResource.resourceName)) {
 						// don't worry about adding the resource as it may not even be there
@@ -63,7 +63,7 @@ public class ScanConfiguration extends AbstractConfiguration {
 						context.getMetaData().addWebInfJar(fragmentResource);
 						context.getMetaData().addFragment(fragmentResource, Resource.newResource(resolvedUrl));
 					} else if (isWebResourceBase(scanResource)) {
-						URL resolvedUrl =  morphDevelopmentResource(scanResource);
+						URL resolvedUrl = morphDevelopmentResource(scanResource);
 
 						if (log.isDebugEnabled()) {
 							log.debug("webapp.scan: found resource {}", resolvedUrl.toString());
@@ -100,7 +100,7 @@ public class ScanConfiguration extends AbstractConfiguration {
 
 		scanner.registerResourceScanner(listener);
 		scanner.scan(context.getClassLoader());
-  }
+	}
 
 	protected void foundWebXml(ResourceScanListener.ScanResource scanResource, WebAppContext context) throws Exception {
 		if (context.getMetaData().getWebXml() == null) {
@@ -121,16 +121,17 @@ public class ScanConfiguration extends AbstractConfiguration {
 	 * (1) called META-INF/resource or
 	 * (2) it is a directory and it ends with src/main|test/webapp
 	 * (3) the offset url ends with WEB-INF/classes/
+	 *
 	 * @param scanResource
 	 * @return
 	 */
 	protected boolean isWebResourceBase(ResourceScanListener.ScanResource scanResource) {
 		return scanResource.resourceName.equals("META-INF/resources") ||
-		   scanResource.resourceName.equals("META-INF/resources/") ||
-			(scanResource.file == null && scanResource.offsetUrl.toString().endsWith("!WEB-INF/classes/")) ||
-			(scanResource.file != null && scanResource.file.isDirectory() &&
-				( scanResource.file.getAbsolutePath().endsWith("/src/main/webapp") ||
-				scanResource.file.getAbsolutePath().endsWith("/src/test/webapp")  ));
+				scanResource.resourceName.equals("META-INF/resources/") ||
+				(scanResource.file == null && scanResource.offsetUrl.toString().endsWith("!WEB-INF/classes/")) ||
+				(scanResource.file != null && scanResource.file.isDirectory() &&
+						(scanResource.file.getAbsolutePath().endsWith("/src/main/webapp") ||
+								scanResource.file.getAbsolutePath().endsWith("/src/test/webapp")));
 	}
 
 	protected URL morphDevelopmentResource(ResourceScanListener.ScanResource scanResource) {
@@ -152,18 +153,18 @@ public class ScanConfiguration extends AbstractConfiguration {
 	}
 
 	@Override
-  public void configure(WebAppContext context) throws Exception {
+	public void configure(WebAppContext context) throws Exception {
 
-    // taken from WebInfConfiguration
-    List<Resource> resources = (List<Resource>) context.getAttribute(WebInfConfiguration.RESOURCE_URLS);
+		// taken from WebInfConfiguration
+		List<Resource> resources = (List<Resource>) context.getAttribute(WebInfConfiguration.RESOURCE_URLS);
 
-    if (resources != null) {
-      Resource[] collection = new Resource[resources.size() + 1];
-      int i = 0;
-      collection[i++] = context.getBaseResource();
-      for (Resource resource : resources)
-        collection[i++] = resource;
-      context.setBaseResource(new ResourceCollection(collection));
-    }
-  }
+		if (resources != null) {
+			Resource[] collection = new Resource[resources.size() + 1];
+			int i = 0;
+			collection[i++] = context.getBaseResource();
+			for (Resource resource : resources)
+				collection[i++] = resource;
+			context.setBaseResource(new ResourceCollection(collection));
+		}
+	}
 }
