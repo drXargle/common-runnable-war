@@ -14,6 +14,8 @@ import java.io.File;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +27,9 @@ public class ScanConfiguration extends AbstractConfiguration {
 	private Logger log = LoggerFactory.getLogger(getClass());
 
 	public static Resource webXml;
+
+	protected static final Path PATH_TARGET_RESOURCES = Paths.get("target/classes/META-INF/resources");
+	protected static final Path PATH_TARGET_TEST_RESOURCES = Paths.get("target/test-classes/META-INF/resources");
 
 	@Override
 	public void preConfigure(final WebAppContext context) throws Exception {
@@ -138,10 +143,11 @@ public class ScanConfiguration extends AbstractConfiguration {
 		URL resolved = scanResource.getResolvedUrl();
 
 		if (scanResource.file != null && scanResource.file.isDirectory()) {
+			Path absoluteFilePath = scanResource.file.toPath();
 			try {
-				if (scanResource.file.getPath().endsWith("/target/test-classes/META-INF/resources")) {
+				if (absoluteFilePath.endsWith(PATH_TARGET_TEST_RESOURCES)) {
 					resolved = new File(scanResource.file.getParentFile().getParentFile().getParentFile().getParentFile(), "src/test/resources/META-INF/resources").toURI().toURL();
-				} else if (scanResource.file.getPath().endsWith("/target/classes/META-INF/resources")) {
+				} else if (absoluteFilePath.endsWith(PATH_TARGET_RESOURCES)) {
 					resolved = new File(scanResource.file.getParentFile().getParentFile().getParentFile().getParentFile(), "src/main/resources/META-INF/resources").toURI().toURL();
 				}
 			} catch (MalformedURLException mue) {
