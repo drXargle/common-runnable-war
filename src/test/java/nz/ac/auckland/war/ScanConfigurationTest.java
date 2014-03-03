@@ -29,7 +29,6 @@ public class ScanConfigurationTest {
 	 * ..\common-runnable-war/src/main/resources/META-INF/resources
 	 * @throws Exception
 	 */
-	@Test
 	public void testPathTraverse() throws Exception{
 		// test endsWith()
 		Path winFile = Paths.get("C:\\dev\\uoagit\\common-runnable-war\\target\\classes\\META-INF\\resources\\");
