@@ -9,7 +9,7 @@
 
   <groupId>nz.ac.auckland.groupapps.common</groupId>
   <artifactId>runnable-war</artifactId>
-  <version>1.3</version>
+  <version>1.4-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>runnable-war</name>
 
@@ -21,7 +21,7 @@
 		<connection>scm:git:git@github.com:uoa-group-applications/runnable-war</connection>
 		<developerConnection>scm:git:git@github.com:uoa-group-applications/runnable-war</developerConnection>
 		<url>http://github.com/uoa-group-applications/runnable-war</url>
-		<tag>runnable-war-1.3</tag>
+		<tag>HEAD</tag>
 	</scm>
 
   <dependencies>
