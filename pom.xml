@@ -52,9 +52,9 @@
 
 	  <!-- this is to allow us to use tests -->
 	  <dependency>
-		  <groupId>com.bluetrainsoftware.composite</groupId>
-		  <artifactId>composite-unit-test</artifactId>
-		  <version>[1,2)</version>
+		  <groupId>nz.ac.auckland.composite</groupId>
+		  <artifactId>composite-unittest</artifactId>
+		  <version>[2,3)</version>
 		  <scope>test</scope>
 	  </dependency>
   </dependencies>

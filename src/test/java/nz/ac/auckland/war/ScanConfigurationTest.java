@@ -8,6 +8,8 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static org.fest.assertions.Assertions.assertThat;
+
 /**
  * author: Irina Benediktovich - http://plus.google.com/+IrinaBenediktovich
  */
@@ -32,6 +34,8 @@ public class ScanConfigurationTest {
 		// test endsWith()
 		Path winFile = Paths.get("C:\\dev\\uoagit\\common-runnable-war\\target\\classes\\META-INF\\resources\\");
 		Path unixFile = Paths.get("/home/user/dev/common-runnable-war/target/classes/META-INF/resources/");
+
+		assertThat(winFile.endsWith(ScanConfiguration.PATH_TARGET_RESOURCES)).isTrue();
 
 		assert winFile.endsWith(ScanConfiguration.PATH_TARGET_RESOURCES);
 		assert unixFile.endsWith(ScanConfiguration.PATH_TARGET_RESOURCES);
