@@ -188,15 +188,14 @@ public class WebAppRunner {
 				configClasses.add(st.nextToken());
 			}
 
-			for (String configClass : JETTY_CONFIGURATION_CLASSES) {
+			for (String configClass : jetty_configuration_classes) {
 				configClasses.add(configClass);
 			}
 
 			return configClasses.toArray(new String[configClasses.size()]);
 		} else {
-			return JETTY_CONFIGURATION_CLASSES;
+			return jetty_configuration_classes;
 		}
-
 	}
 
 	/*

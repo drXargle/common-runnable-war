@@ -6,7 +6,6 @@ import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.ResourceCollection;
 import org.eclipse.jetty.webapp.AbstractConfiguration;
 import org.eclipse.jetty.webapp.WebAppContext;
-import org.eclipse.jetty.webapp.WebInfConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,13 +30,16 @@ public class ScanConfiguration extends AbstractConfiguration {
 	protected static final Path PATH_TARGET_RESOURCES = Paths.get("target/classes/META-INF/resources");
 	protected static final Path PATH_TARGET_TEST_RESOURCES = Paths.get("target/test-classes/META-INF/resources");
 
+	public static String RESOURCE_URLS = "nz.ac.auckland.jetty.resource-urls";
+
+	@SuppressWarnings("unchecked")
 	@Override
 	public void preConfigure(final WebAppContext context) throws Exception {
-		List<Resource> theResources = (List<Resource>) context.getAttribute(WebInfConfiguration.RESOURCE_URLS);
+		List<Resource> theResources = (List<Resource>) context.getAttribute(RESOURCE_URLS);
 
 		if (theResources == null) {
 			theResources = new ArrayList<>();
-			context.setAttribute(WebInfConfiguration.RESOURCE_URLS, theResources);
+			context.setAttribute(RESOURCE_URLS, theResources);
 		}
 
 		final List<Resource> resources = theResources;
@@ -127,8 +129,8 @@ public class ScanConfiguration extends AbstractConfiguration {
 	 * (2) it is a directory and it ends with src/main|test/webapp
 	 * (3) the offset url ends with WEB-INF/classes/
 	 *
-	 * @param scanResource
-	 * @return
+	 * @param scanResource - the url class path that is being made available
+	 * @return whether it is a web resource
 	 */
 	protected boolean isWebResourceBase(ResourceScanListener.ScanResource scanResource) {
 		return scanResource.resourceName.equals("META-INF/resources") ||
@@ -158,11 +160,12 @@ public class ScanConfiguration extends AbstractConfiguration {
 		return resolved;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void configure(WebAppContext context) throws Exception {
 
 		// taken from WebInfConfiguration
-		List<Resource> resources = (List<Resource>) context.getAttribute(WebInfConfiguration.RESOURCE_URLS);
+		List<Resource> resources = (List<Resource>) context.getAttribute(RESOURCE_URLS);
 
 		if (resources != null) {
 			Resource[] collection = new Resource[resources.size() + 1];
