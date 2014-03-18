@@ -10,13 +10,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Paths;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
 
 /**
  * Scans the classpath for all of the important components we need - web fragments, web resource directories
@@ -32,6 +36,14 @@ public class ScanConfiguration extends AbstractConfiguration {
 
 	public static String RESOURCE_URLS = "nz.ac.auckland.jetty.resource-urls";
 
+	private final boolean devMode;
+
+	public ScanConfiguration() {
+		devMode = System.getProperty(WebAppRunner.WEBAPP_WAR_FILENAME) == null;
+	}
+
+
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public void preConfigure(final WebAppContext context) throws Exception {
@@ -43,10 +55,19 @@ public class ScanConfiguration extends AbstractConfiguration {
 		}
 
 		final List<Resource> resources = theResources;
+		final List<ResourceScanListener.ScanResource> interesting = new ArrayList<>();
+
+		final InMemoryResource inMemoryResource = devMode ? null : new InMemoryResource();
+
+		if (inMemoryResource != null) {
+			resources.add(inMemoryResource);
+		}
 
 		ResourceScanListener listener = new ResourceScanListener() {
 			@Override
 			public List<ScanResource> resource(List<ScanResource> scanResources) throws Exception {
+				interesting.clear();
+
 				for (ScanResource scanResource : scanResources) {
 					if ("WEB-INF/web.xml".equals(scanResource.resourceName)) {
 						foundWebXml(scanResource, context);
@@ -69,20 +90,26 @@ public class ScanConfiguration extends AbstractConfiguration {
 
 						context.getMetaData().addWebInfJar(fragmentResource);
 						context.getMetaData().addFragment(fragmentResource, Resource.newResource(resolvedUrl));
-					} else if (isWebResourceBase(scanResource)) {
+					} else if (devMode && isWebResourceBase(scanResource)) {
 						URL resolvedUrl = morphDevelopmentResource(scanResource);
 
 						if (log.isDebugEnabled()) {
 							log.debug("webapp.scan: found resource {}", resolvedUrl.toString());
 						}
 						resources.add(Resource.newResource(resolvedUrl));
+					} else if (!devMode && prefixWebResource(scanResource) != null) {
+						interesting.add(scanResource);
 					}
 				}
-				return null;
+
+				return interesting;
 			}
 
 			@Override
 			public void deliver(ScanResource desire, InputStream inputStream) {
+				// this should only ever happen in production mode
+
+				putResource(desire, prefixWebResource(desire), inputStream, inMemoryResource);
 			}
 
 			@Override
@@ -107,6 +134,39 @@ public class ScanConfiguration extends AbstractConfiguration {
 
 		scanner.registerResourceScanner(listener);
 		scanner.scan(context.getClassLoader());
+	}
+
+	protected void putResource(ResourceScanListener.ScanResource desire, String stripPrefix, InputStream stream, InMemoryResource resource) {
+		String resourceName = desire.resourceName;
+
+		if (stripPrefix.length() > 0) {
+			resourceName = resourceName.substring(stripPrefix.length());
+		}
+
+		String[] paths = resourceName.split("/");
+		for(int count = 0; count < paths.length - 1; count ++) {
+			InMemoryResource child = resource.findPath(paths[count]);
+
+			if (child == null) {
+				child = resource.addDirectory(paths[count]);
+			}
+
+			resource = child;
+		}
+
+		if (desire.entry.isDirectory()) {
+			resource.addDirectory(paths[paths.length-1]);
+		} else {
+			resource.addFile(paths[paths.length-1], stream);
+		}
+	}
+
+	protected String prefixWebResource(ResourceScanListener.ScanResource scanResource) {
+		if (scanResource.resourceName.startsWith("META-INF/resources/")) {
+			return "META-INF/resources/";
+		}
+
+		return null;
 	}
 
 	protected void foundWebXml(ResourceScanListener.ScanResource scanResource, WebAppContext context) throws Exception {
@@ -168,12 +228,16 @@ public class ScanConfiguration extends AbstractConfiguration {
 		List<Resource> resources = (List<Resource>) context.getAttribute(RESOURCE_URLS);
 
 		if (resources != null) {
-			Resource[] collection = new Resource[resources.size() + 1];
-			int i = 0;
-			collection[i++] = context.getBaseResource();
-			for (Resource resource : resources)
-				collection[i++] = resource;
-			context.setBaseResource(new ResourceCollection(collection));
+			if (resources.size() > 1) {
+				Resource[] collection = new Resource[resources.size() + 1];
+				int i = 0;
+				collection[i++] = context.getBaseResource();
+				for (Resource resource : resources)
+					collection[i++] = resource;
+				context.setBaseResource(new ResourceCollection(collection));
+			} else {
+				context.setBaseResource(resources.get(0));
+			}
 		}
 	}
 }
