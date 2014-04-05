@@ -22,7 +22,7 @@ public class MetaDataHandler extends HandlerWrapper {
 
   private static final String CLIENT_HEADER = "X-Forwarded-For";
   private static final String HOST_HEADER = "X-Forwarded-Host";
-  private static final String SCHEME_HEADER = "X-Forwarded-Protocol";
+  private static final String SCHEME_HEADER = "X-Forwarded-Proto";
 
   private static final String HTTP_SCHEME = "http";
   private static final String HTTPS_SCHEME = "https";
