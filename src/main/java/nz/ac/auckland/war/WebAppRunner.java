@@ -37,6 +37,10 @@ public class WebAppRunner {
 	public static final String WEBAPP_SECURE_COOKIES_PROPERTY = "webapp.cookies.secure";
 	public static final String WEBAPP_EXTRA_CONFIGURATION_CLASSES = "webapp.configClasses";
 	public static final String WEBAPP_WAR_FILENAME = "webapp.warFile";
+	public static final String WEBAPP_REQUEST_HEADER_SIZE = "webapp.header.request.size";
+	public static final String WEBAPP_RESPONSE_HEADER_SIZE = "webapp.header.response.size";
+	public static final String WEBAPP_HEADER_CACHE_SIZE = "webapp.header.cache.size";
+	public static final String WEBAPP_OUTPUT_BUFFER_SIZE = "webapp.output.buffer.size";
 
 
 	public static final String WEBDEFAULT_XML = "nz/ac/auckland/war/webdefault.xml";
@@ -45,6 +49,11 @@ public class WebAppRunner {
 	protected static final int WEBAPP_HTTP_PORT_DEFAULT = 8090;
 	protected static final int WEBAPP_SHUTDOWN_TIMEOUT_DEFAULT = 12000;
 	protected static final String WEBAPP_CONTEXT_DEFAULT = "/";
+	protected static final int HEADER_SIZE_BASE = 1024;
+	protected static final int WEBAPP_REQUEST_HEADER_SIZE_DEFAULT = 8;
+	protected static final int WEBAPP_RESPONSE_HEADER_SIZE_DEFAULT = 8;
+	protected static final int WEBAPP_OUTPUT_BUFFER_SIZE_DEFAULT = 32;
+	protected static final int WEBAPP_HEADER_CACHE_SIZE_DEFAULT = 1;
 
 	// basic required configuration classes in this particular order
 	private static String[] JETTY_CONFIGURATION_CLASSES =
@@ -107,6 +116,16 @@ public class WebAppRunner {
 				MetaDataHandler.rewriteProxyRequest(request);
 			}
 		});
+
+		int request_header_size = Integer.getInteger(WEBAPP_REQUEST_HEADER_SIZE, WEBAPP_REQUEST_HEADER_SIZE_DEFAULT);
+		int response_header_size = Integer.getInteger(WEBAPP_RESPONSE_HEADER_SIZE, WEBAPP_RESPONSE_HEADER_SIZE_DEFAULT);
+		int output_buffer_size = Integer.getInteger(WEBAPP_OUTPUT_BUFFER_SIZE, WEBAPP_OUTPUT_BUFFER_SIZE_DEFAULT);
+		int header_cache_size = Integer.getInteger(WEBAPP_HEADER_CACHE_SIZE, WEBAPP_HEADER_CACHE_SIZE_DEFAULT);
+
+		httpConfig.setRequestHeaderSize(request_header_size * HEADER_SIZE_BASE);
+		httpConfig.setResponseHeaderSize(response_header_size * HEADER_SIZE_BASE);
+		httpConfig.setOutputBufferSize(output_buffer_size * HEADER_SIZE_BASE);
+		httpConfig.setHeaderCacheSize(header_cache_size * HEADER_SIZE_BASE);
 
 		ServerConnector connector = new ServerConnector(server,
 			new HttpConnectionFactory(httpConfig));
