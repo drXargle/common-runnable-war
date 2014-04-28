@@ -38,7 +38,7 @@ public class WebApplicationSimpleContext extends WebAppContext {
 		@Override
 		public InputStream getResourceAsStream(String path) {
 			if (devMode) {
-				return super.getResourceAsStream(path);
+				return super.getResourceAsStream(path.replace("//", "/")); // jawr nonsense
 			}
 
 			try {
