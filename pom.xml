@@ -8,7 +8,7 @@
 	</parent>
 	<groupId>nz.ac.auckland.groupapps.common</groupId>
 	<artifactId>runnable-war</artifactId>
-	<version>1.8-SNAPSHOT</version>
+	<version>1.8</version>
 	<packaging>jar</packaging>
 	<name>runnable-war</name>
 	<description>
@@ -18,7 +18,7 @@
 		<connection>scm:git:git@github.com:uoa-group-applications/runnable-war</connection>
 		<developerConnection>scm:git:git@github.com:uoa-group-applications/runnable-war</developerConnection>
 		<url>http://github.com/uoa-group-applications/runnable-war</url>
-		<tag>HEAD</tag>
+		<tag>runnable-war-1.8</tag>
 	</scm>
 	<dependencies>
 		<dependency>
