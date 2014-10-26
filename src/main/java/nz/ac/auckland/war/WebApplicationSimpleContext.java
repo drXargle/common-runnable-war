@@ -28,7 +28,7 @@ public class WebApplicationSimpleContext extends WebAppContext {
     return false;
   }
 
-	public class MyContextHandler extends ContextHandler.Context {
+	public class MyContextHandler extends Context {
 		private final boolean devMode;
 
 		public MyContextHandler() {
