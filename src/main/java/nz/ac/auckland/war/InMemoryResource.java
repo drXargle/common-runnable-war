@@ -214,4 +214,9 @@ public class InMemoryResource extends Resource {
 
 		return resource;
 	}
+
+	@Override
+	public String toString() {
+		return fileName;
+	}
 }
