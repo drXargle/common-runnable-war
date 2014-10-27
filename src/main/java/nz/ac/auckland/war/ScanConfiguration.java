@@ -72,11 +72,23 @@ public class ScanConfiguration extends AbstractConfiguration {
 					if ("WEB-INF/web.xml".equals(scanResource.resourceName)) {
 						foundWebXml(scanResource, context);
 
+						if (log.isDebugEnabled()) {
+							log.debug("webapp.scan: found web.xml {}", scanResource.getResolvedUrl().toString());
+						}
+
 						if (context.getBaseResource() == null) {
+							if (log.isDebugEnabled()) {
+								log.debug("webapp.scan: found base directory {}", Resource.newResource(scanResource.offsetUrl).toString());
+							}
+
 							context.setBaseResource(Resource.newResource(scanResource.offsetUrl));  // add base directory
 						}
 					} else if ("META-INF/resources/WEB-INF/web.xml".equals(scanResource.resourceName)) {
 						// need to add offseturl + /META-INF/resources
+						if (log.isDebugEnabled()) {
+							log.debug("webapp.scan: found web.xml {}", scanResource.getResolvedUrl().toString());
+						}
+
 						foundWebXml(scanResource, context);
 					} else if ("META-INF/web-fragment.xml".equals(scanResource.resourceName)) {
 						// don't worry about adding the resource as it may not even be there
