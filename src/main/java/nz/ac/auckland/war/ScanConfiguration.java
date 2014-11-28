@@ -103,12 +103,13 @@ public class ScanConfiguration extends AbstractConfiguration {
 						context.getMetaData().addWebInfJar(fragmentResource);
 						context.getMetaData().addFragment(fragmentResource, Resource.newResource(resolvedUrl));
 					} else if (devMode && isWebResourceBase(scanResource)) {
-						URL resolvedUrl = morphDevelopmentResource(scanResource);
+						for(URL resolvedUrl : morphDevelopmentResource(scanResource)) {
+							if (log.isDebugEnabled()) {
+								log.debug("webapp.scan: found resource {}", resolvedUrl.toString());
+							}
 
-						if (log.isDebugEnabled()) {
-							log.debug("webapp.scan: found resource {}", resolvedUrl.toString());
+							resources.add(Resource.newResource(resolvedUrl));
 						}
-						resources.add(Resource.newResource(resolvedUrl));
 					} else if (!devMode && prefixWebResource(scanResource) != null) {
 						interesting.add(scanResource);
 					}
@@ -213,23 +214,35 @@ public class ScanConfiguration extends AbstractConfiguration {
 								scanResource.file.getAbsolutePath().endsWith("/src/test/webapp")));
 	}
 
-	protected URL morphDevelopmentResource(ResourceScanListener.ScanResource scanResource) {
+	protected List<URL> morphDevelopmentResource(ResourceScanListener.ScanResource scanResource) {
+		List<URL> resolvedUrls = new ArrayList<>();
+
 		URL resolved = scanResource.getResolvedUrl();
 
 		if (scanResource.file != null && scanResource.file.isDirectory()) {
 			Path absoluteFilePath = scanResource.file.toPath();
+			URL newUrl = null;
+
 			try {
 				if (absoluteFilePath.endsWith(PATH_TARGET_TEST_RESOURCES)) {
-					resolved = new File(scanResource.file.getParentFile().getParentFile().getParentFile().getParentFile(), "src/test/resources/META-INF/resources").toURI().toURL();
+					newUrl = new File(scanResource.file.getParentFile().getParentFile().getParentFile().getParentFile(), "src/test/resources/META-INF/resources").toURI().toURL();
 				} else if (absoluteFilePath.endsWith(PATH_TARGET_RESOURCES)) {
-					resolved = new File(scanResource.file.getParentFile().getParentFile().getParentFile().getParentFile(), "src/main/resources/META-INF/resources").toURI().toURL();
+					newUrl = new File(scanResource.file.getParentFile().getParentFile().getParentFile().getParentFile(), "src/main/resources/META-INF/resources").toURI().toURL();
 				}
 			} catch (MalformedURLException mue) {
 				log.error("Unable to morph {} to development resource, this is unexpected, be warned!", resolved.toString());
 			}
+
+			// we need BOTH urls, because we can have build time activities that will generate files from
+			// sources to target, we just need target SECOND
+			if (newUrl != null) {
+				resolvedUrls.add(newUrl);
+			}
 		}
 
-		return resolved;
+		resolvedUrls.add(resolved);
+
+		return resolvedUrls;
 	}
 
 	@SuppressWarnings("unchecked")

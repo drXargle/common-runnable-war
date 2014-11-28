@@ -7,6 +7,7 @@ import java.io.File;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -66,8 +67,8 @@ public class ScanConfigurationTest {
 		assert file.exists();
 
 		ResourceScanListener.ScanResource res = new ResourceScanListener.ScanResource(null, file, null);
-		URL result = scan.morphDevelopmentResource(res);
-		assert result.toString().replaceAll("\\\\", "/").contains("src/test/resources/META-INF/resources");
+		List<URL> result = scan.morphDevelopmentResource(res);
+		assert result.get(0).toString().replaceAll("\\\\", "/").contains("src/test/resources/META-INF/resources");
 	}
 
 }
