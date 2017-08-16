@@ -1,4 +1,4 @@
-package nz.ac.auckland.war;
+package cd.connect.war;
 
 import java.io.File;
 import java.io.IOException;

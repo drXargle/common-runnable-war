@@ -1,4 +1,4 @@
-package nz.ac.auckland.war;
+package cd.connect.war;
 
 import com.bluetrainsoftware.classpathscanner.ClasspathScanner;
 import com.bluetrainsoftware.classpathscanner.ResourceScanListener;
@@ -10,39 +10,33 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.file.Paths;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
 
 /**
  * Scans the classpath for all of the important components we need - web fragments, web resource directories
  * author: Richard Vowles - http://gplus.to/RichardVowles
  */
 public class ScanConfiguration extends AbstractConfiguration {
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private Logger logger = LoggerFactory.getLogger(getClass());
 
 	public static Resource webXml;
 
 	protected static final Path PATH_TARGET_RESOURCES = Paths.get("target/classes/META-INF/resources");
 	protected static final Path PATH_TARGET_TEST_RESOURCES = Paths.get("target/test-classes/META-INF/resources");
 
-	public static String RESOURCE_URLS = "nz.ac.auckland.jetty.resource-urls";
+	public static String RESOURCE_URLS = "cd.connect.jetty.resource-urls";
 
 	private final boolean devMode;
 
 	public ScanConfiguration() {
 		devMode = System.getProperty(WebAppRunner.WEBAPP_WAR_FILENAME) == null;
 	}
-
-
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -71,43 +65,36 @@ public class ScanConfiguration extends AbstractConfiguration {
 				for (ScanResource scanResource : scanResources) {
 					if ("WEB-INF/web.xml".equals(scanResource.resourceName)) {
 						foundWebXml(scanResource, context);
-
-						if (log.isDebugEnabled()) {
-							log.debug("webapp.scan: found web.xml {}", scanResource.getResolvedUrl().toString());
+						if (logger.isDebugEnabled()) {
+							logger.debug("webapp.scan: found web.xml {}", scanResource.getResolvedUrl().toString());
 						}
-
 						if (context.getBaseResource() == null) {
-							if (log.isDebugEnabled()) {
-								log.debug("webapp.scan: found base directory {}", Resource.newResource(scanResource.offsetUrl).toString());
+							if (logger.isDebugEnabled()) {
+								logger.debug("webapp.scan: found base directory {}", Resource.newResource(scanResource.offsetUrl).toString());
 							}
-
 							context.setBaseResource(Resource.newResource(scanResource.offsetUrl));  // add base directory
 						}
 					} else if ("META-INF/resources/WEB-INF/web.xml".equals(scanResource.resourceName)) {
 						// need to add offseturl + /META-INF/resources
-						if (log.isDebugEnabled()) {
-							log.debug("webapp.scan: found web.xml {}", scanResource.getResolvedUrl().toString());
+						if (logger.isDebugEnabled()) {
+							logger.debug("webapp.scan: found web.xml {}", scanResource.getResolvedUrl().toString());
 						}
-
 						foundWebXml(scanResource, context);
 					} else if ("META-INF/web-fragment.xml".equals(scanResource.resourceName)) {
 						// don't worry about adding the resource as it may not even be there
 						URL resolvedUrl = scanResource.getResolvedUrl();
-
-						if (log.isDebugEnabled()) {
-							log.debug("webapp.scan: found web fragment {}", resolvedUrl.toString());
+						if (logger.isDebugEnabled()) {
+							logger.debug("webapp.scan: found web fragment {}", resolvedUrl.toString());
 						}
-
 						Resource fragmentResource = Resource.newResource(scanResource.offsetUrl);
 
 						context.getMetaData().addWebInfJar(fragmentResource);
 						context.getMetaData().addFragment(fragmentResource, Resource.newResource(resolvedUrl));
 					} else if (devMode && isWebResourceBase(scanResource)) {
-						for(URL resolvedUrl : morphDevelopmentResource(scanResource)) {
-							if (log.isDebugEnabled()) {
-								log.debug("webapp.scan: found resource {}", resolvedUrl.toString());
+						for (URL resolvedUrl : morphDevelopmentResource(scanResource)) {
+							if (logger.isDebugEnabled()) {
+								logger.debug("webapp.scan: found resource {}", resolvedUrl.toString());
 							}
-
 							resources.add(Resource.newResource(resolvedUrl));
 						}
 					} else if (!devMode && prefixWebResource(scanResource) != null) {
@@ -121,7 +108,6 @@ public class ScanConfiguration extends AbstractConfiguration {
 			@Override
 			public void deliver(ScanResource desire, InputStream inputStream) {
 				// this should only ever happen in production mode
-
 				putResource(desire, prefixWebResource(desire), inputStream, inMemoryResource);
 			}
 
@@ -157,7 +143,7 @@ public class ScanConfiguration extends AbstractConfiguration {
 		}
 
 		String[] paths = resourceName.split("/");
-		for(int count = 0; count < paths.length - 1; count ++) {
+		for (int count = 0; count < paths.length - 1; count++) {
 			InMemoryResource child = resource.findPath(paths[count]);
 
 			if (child == null) {
@@ -168,9 +154,9 @@ public class ScanConfiguration extends AbstractConfiguration {
 		}
 
 		if (desire.entry.isDirectory()) {
-			resource.addDirectory(paths[paths.length-1]);
+			resource.addDirectory(paths[paths.length - 1]);
 		} else {
-			resource.addFile(paths[paths.length-1], stream);
+			resource.addFile(paths[paths.length - 1], stream);
 		}
 	}
 
@@ -186,13 +172,13 @@ public class ScanConfiguration extends AbstractConfiguration {
 		if (context.getMetaData().getWebXml() == null) {
 			webXml = Resource.newResource(scanResource.getResolvedUrl());
 
-			if (log.isDebugEnabled()) {
-				log.debug("webapp.scan: found web.xml {}", webXml.toString());
+			if (logger.isDebugEnabled()) {
+				logger.debug("webapp.scan: found web.xml {}", webXml.toString());
 			}
 
 			context.getMetaData().setWebXml(webXml);
 		} else {
-			log.info("Found extra web.xml, ignoring {}", scanResource.getResolvedUrl().toString());
+			logger.info("Found extra web.xml, ignoring {}", scanResource.getResolvedUrl().toString());
 		}
 	}
 
@@ -207,11 +193,11 @@ public class ScanConfiguration extends AbstractConfiguration {
 	 */
 	protected boolean isWebResourceBase(ResourceScanListener.ScanResource scanResource) {
 		return scanResource.resourceName.equals("META-INF/resources") ||
-				scanResource.resourceName.equals("META-INF/resources/") ||
-				(scanResource.file == null && scanResource.offsetUrl.toString().endsWith("!WEB-INF/classes/")) ||
-				(scanResource.file != null && scanResource.file.isDirectory() &&
-						(scanResource.file.getAbsolutePath().endsWith("/src/main/webapp") ||
-								scanResource.file.getAbsolutePath().endsWith("/src/test/webapp")));
+						scanResource.resourceName.equals("META-INF/resources/") ||
+						(scanResource.file == null && scanResource.offsetUrl.toString().endsWith("!WEB-INF/classes/")) ||
+						(scanResource.file != null && scanResource.file.isDirectory() &&
+										(scanResource.file.getAbsolutePath().endsWith("/src/main/webapp") ||
+														scanResource.file.getAbsolutePath().endsWith("/src/test/webapp")));
 	}
 
 	protected List<URL> morphDevelopmentResource(ResourceScanListener.ScanResource scanResource) {
@@ -230,7 +216,7 @@ public class ScanConfiguration extends AbstractConfiguration {
 					newUrl = new File(scanResource.file.getParentFile().getParentFile().getParentFile().getParentFile(), "src/main/resources/META-INF/resources").toURI().toURL();
 				}
 			} catch (MalformedURLException mue) {
-				log.error("Unable to morph {} to development resource, this is unexpected, be warned!", resolved.toString());
+				logger.error("Unable to morph {} to development resource, this is unexpected, be warned!", resolved.toString());
 			}
 
 			// we need BOTH urls, because we can have build time activities that will generate files from

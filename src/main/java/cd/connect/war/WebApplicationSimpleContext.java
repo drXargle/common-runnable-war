@@ -1,6 +1,5 @@
-package nz.ac.auckland.war;
+package cd.connect.war;
 
-import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
 import org.eclipse.jetty.util.resource.Resource;
@@ -8,18 +7,16 @@ import org.eclipse.jetty.webapp.WebAppContext;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 
 /**
  * Treats all classes as "non server classes".  Allows us to override security and various other things
  * we need to do to get this working.
  */
 public class WebApplicationSimpleContext extends WebAppContext {
-	private static final Logger LOG = Log.getLogger(WebApplicationSimpleContext.class);
+	private static final Logger logger = Log.getLogger(WebApplicationSimpleContext.class);
 
   public WebApplicationSimpleContext(String webApp, String contextPath) {
     super(webApp, contextPath);
-
 	  _scontext = new MyContextHandler();
   }
 
@@ -48,7 +45,7 @@ public class WebApplicationSimpleContext extends WebAppContext {
 					return resource.getInputStream();
 				}
 			} catch (IOException e) {
-				LOG.ignore(e);
+				logger.ignore(e);
 			}
 
 			return null;

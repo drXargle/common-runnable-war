@@ -1,4 +1,4 @@
-package nz.ac.auckland.war;
+package cd.connect.war.watcher;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,4 +1,4 @@
-package nz.ac.auckland.war;
+package cd.connect.war.watcher;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +12,7 @@ import java.util.concurrent.CountDownLatch;
  * Lists on localhost - this means integration tests can stop the container easily.
  */
 public class PortWatcher implements Runnable {
-  private static final Logger log = LoggerFactory.getLogger(PortWatcher.class);
+  private static final Logger logger = LoggerFactory.getLogger(PortWatcher.class);
 
   private final CountDownLatch latch;
   private final ServerSocket listener;
@@ -24,7 +24,7 @@ public class PortWatcher implements Runnable {
     } catch (IOException e) {
       throw new RuntimeException("Cannot start port watcher", e);
     }
-    log.debug("Port watcher is listening on port {} for shutdown", port);
+    logger.debug("Port watcher is listening on port {} for shutdown", port);
   }
 
   @Override
@@ -40,7 +40,7 @@ public class PortWatcher implements Runnable {
     }
 
     if (latch.getCount() > 0) {
-      log.debug("Received tcp connection, shutting down");
+      logger.debug("Received tcp connection, shutting down");
       latch.countDown();
     }
   }

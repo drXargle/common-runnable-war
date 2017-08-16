@@ -1,4 +1,4 @@
-package nz.ac.auckland.war;
+package cd.connect.war;
 
 import org.eclipse.jetty.util.IO;
 import org.eclipse.jetty.util.resource.Resource;
@@ -19,7 +19,7 @@ import java.util.Map;
  * @author: Richard Vowles - https://plus.google.com/+RichardVowles
  */
 public class InMemoryResource extends Resource {
-	private static final Logger log =  LoggerFactory.getLogger(InMemoryResource.class);
+	private static final Logger logger =  LoggerFactory.getLogger(InMemoryResource.class);
 
 	class ByteArray {
 		byte bytes[];
@@ -190,7 +190,7 @@ public class InMemoryResource extends Resource {
 	@Override
 	public Resource addPath(String path) throws IOException {
 		if ("/".equals(path)) {
-//			log.info("INMEMORYREQUEST: {} - top level", path);
+//			logger.info("INMEMORYREQUEST: {} - top level", path);
 			return this;
 		}
 
@@ -203,14 +203,14 @@ public class InMemoryResource extends Resource {
 			resource = resource.findPath(partPath);
 
 			if (resource == null) {
-//				log.info("INMEMORYREQUEST: {} - could not find", path);
+//				logger.info("INMEMORYREQUEST: {} - could not find", path);
 
 				// this will garbage collect, don't hang onto it
 				return new InMemoryResource(this, null, path);
 			}
 		}
 
-//		log.info("INMEMORYREQUEST: {} - found", path);
+//		logger.info("INMEMORYREQUEST: {} - found", path);
 
 		return resource;
 	}
