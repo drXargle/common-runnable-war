@@ -41,6 +41,8 @@ public class WebAppRunner {
 	public static final String WEBAPP_HEADER_CACHE_SIZE = "webapp.header.cache.size";
 	public static final String WEBAPP_OUTPUT_BUFFER_SIZE = "webapp.output.buffer.size";
 
+	public static final String PRE_SCANNED_RESOURCE_NAME = "META-INF/resources/preScanned";
+
 	public static final String WEBDEFAULT_XML = "cd/connect/war/webdefault.xml";
 	public static final String WEBDEFAULT_DEV_XML = "cd/connect/war/webdefault-dev.xml";
 
@@ -58,6 +60,14 @@ public class WebAppRunner {
 					{
 									ScanConfiguration.class.getSimpleName(),
 									ScannedWebXmlConfiguration.class.getSimpleName(),
+									"org.eclipse.jetty.webapp.JettyWebXmlConfiguration"
+					};
+
+	// basic required configuration classes in this particular order
+	private static String[] JETTY_CONFIGURATION_CLASSES_PRESCANNED =
+					{
+									PreScannedConfiguration.class.getSimpleName(),
+									PreScannedWebXMLConfiguration.class.getSimpleName(),
 									"org.eclipse.jetty.webapp.JettyWebXmlConfiguration"
 					};
 
@@ -160,7 +170,9 @@ public class WebAppRunner {
 			context.setBaseResource(Resource.newResource(new URL("jar:file:" + war.getAbsolutePath() + "!/")));
 		}
 
-		context.setConfigurationClasses(getConfigurationClasses(JETTY_CONFIGURATION_CLASSES));
+		boolean preScanned = war != null && getClass().getResource( PRE_SCANNED_RESOURCE_NAME ) != null;
+
+		context.setConfigurationClasses(getConfigurationClasses( preScanned ? JETTY_CONFIGURATION_CLASSES_PRESCANNED : JETTY_CONFIGURATION_CLASSES));
 
 		if (System.getProperty(WEBAPP_WEBDEFAULT_XML_LOCATION) != null) {
 			context.setDefaultsDescriptor(System.getProperty(WEBAPP_WEBDEFAULT_XML_LOCATION));
