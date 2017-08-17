@@ -77,9 +77,16 @@
 		</dependency>
 
 		<dependency>
-			<groupId>cd.connect.common</groupId>
-			<artifactId>connect-java-logging</artifactId>
-			<version>[1.1, 2)</version>
+			<groupId>cd.connect.composites.java</groupId>
+			<artifactId>connect-composite-logging</artifactId>
+			<version>[1.1,2)</version>
+		</dependency>
+
+		<dependency>
+			<groupId>cd.connect.composites.java</groupId>
+			<artifactId>connect-composite-log4j2</artifactId>
+			<version>[1.1,2)</version>
+			<scope>test</scope>
 		</dependency>
 
 		<!-- jetty's scanner is not good enough, or efficient enough -->

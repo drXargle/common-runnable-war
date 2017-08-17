@@ -1,5 +1,6 @@
 package cd.connect.war;
 
+import com.bluetrainsoftware.classpathscanner.ResourceScanListener;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.ResourceCollection;
 import org.eclipse.jetty.webapp.AbstractConfiguration;
@@ -11,6 +12,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,10 +27,18 @@ public class PreScannedConfiguration extends AbstractConfiguration {
 
 	private Logger logger = LoggerFactory.getLogger(getClass());
 
+	protected String applicationRoot;
+
 	protected static Resource webXml;
 
 	public PreScannedConfiguration(){
+		try {
+			applicationRoot = System.getProperty(WebAppRunner.WEBAPP_WAR_FILENAME, this.getClass().getResource("/").toURI().toString());
+		} catch (URISyntaxException e) {
+//
+		}
 
+		logger.debug( "Resource root is `{}`", applicationRoot );
 	}
 
 	@SuppressWarnings("unchecked")
@@ -51,66 +61,90 @@ public class PreScannedConfiguration extends AbstractConfiguration {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void preConfigure(final WebAppContext context) throws Exception {
+		List<Resource> theResources = (List<Resource>) context.getAttribute(RESOURCE_URLS);
+
+		if (theResources == null) {
+			theResources = new ArrayList<>();
+			context.setAttribute(RESOURCE_URLS, theResources);
+		}
+
+		final List<Resource> resources = theResources;
+
 		try {
-			BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(WebAppRunner.PRE_SCANNED_RESOURCE_NAME)));
-			String line = null;
+			BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(WebAppRunner.getPreScanConfigProperty())));
+			String line;
 			while ((line = br.readLine()) != null) {
-				String[] values = line.split(",");
-				if( values.length == 2 ){
-					String resourceName = values[ 0 ];
-					String offsetURL = values[ 1 ];
+				logger.debug( "processing `{}`", line );
+				if( line.contains( "=" ) ){
+					String[] values = line.split("=");
+					String key = values[ 0 ].toLowerCase();
+					URL url = resolvedUrl( values[ 1 ] );
 					try {
-						if ("WEB-INF/web.xml".equals(resourceName)) {
-							foundWebXml(resourceName, offsetURL, context);
-							if (context.getBaseResource() == null) {
-								if (logger.isDebugEnabled()) {
-									logger.debug("webapp.scan: found base directory {}", offsetURL );
+						switch ( key ){
+							case "webbase":
+								foundWebXml( context, url );
+								if ( context.getBaseResource() == null ) {
+									if ( logger.isDebugEnabled() ) {
+										logger.debug( "set base directory {}", url.toString() );
+									}
+									context.setBaseResource( Resource.newResource( url ) );  // add base directory
 								}
-								context.setBaseResource(Resource.newResource(offsetURL));  // add base directory
-							}
-						} else if ("META-INF/resources/WEB-INF/web.xml".equals(resourceName)) {
-							foundWebXml(resourceName, offsetURL, context);
-						} else if ("META-INF/web-fragment.xml".equals(resourceName)) {
-							// don't worry about adding the resource as it may not even be there
-							URL resolvedUrl = resolvedUrl(resourceName, offsetURL);
-							if (logger.isDebugEnabled()) {
-								logger.debug("webapp.scan: found web fragment {}", resolvedUrl.toString());
-							}
-							Resource fragmentResource = Resource.newResource(offsetURL);
-							context.getMetaData().addWebInfJar(fragmentResource);
-							context.getMetaData().addFragment(fragmentResource, Resource.newResource(resolvedUrl));
+								break;
+
+							case "webxml":
+								foundWebXml( context, url );
+								break;
+
+							case "fragment":
+								if (logger.isDebugEnabled()) {
+									logger.debug("included web fragment {}", url.toString());
+								}
+
+								String resourceURL = url.toString();
+								int bang = resourceURL.lastIndexOf('!');
+								if( bang > 0 ){
+									// get rid of the 'jar:' and everything from the '!' onwards
+									resourceURL = resourceURL.substring( 4, bang );
+								}
+
+								Resource fragmentResource = Resource.newResource( new URL( resourceURL ) );
+								context.getMetaData().addWebInfJar( fragmentResource );
+								context.getMetaData().addFragment( fragmentResource, Resource.newResource( url ) );
+								break;
+
+							case "resource":
+								resources.add( Resource.newResource( url ) );
+								break;
 						}
-					} catch (MalformedURLException mue) {
-						logger.warn( "failed to process `{}`. may not wire up", line );
+					} catch ( MalformedURLException mue ) {
+						logger.warn( "failed to process `{}`. may not wire up", line, mue );
 					}
 				}
-				// use line here
 			}
-		} catch (IOException ioe) {
-			logger.debug("{} not present falling through to do classpath scanning", WebAppRunner.PRE_SCANNED_RESOURCE_NAME);
+		} catch ( IOException ioe ) {
+			logger.warn( "Problems loading {}", WebAppRunner.getPreScanConfigProperty(), ioe );
+			throw new RuntimeException( "Failed to load the prescan class mappings from " + WebAppRunner.getPreScanConfigProperty() );
 		}
 
 	}
 
-	protected void foundWebXml( String resourceName , String offsetURL, WebAppContext context ) throws Exception {
-		URL url = resolvedUrl( resourceName, offsetURL );
-		if (context.getMetaData().getWebXml() == null) {
+	private void foundWebXml( WebAppContext context , URL url ) throws Exception {
+		if ( context.getMetaData().getWebXml() == null ) {
 			webXml = Resource.newResource( url );
-			if (logger.isDebugEnabled()) {
-				logger.debug("webapp.scan: found web.xml {}", webXml.toString());
+			if ( logger.isDebugEnabled() ) {
+				logger.debug( "Setting web.xml from {}", url.toString() );
 			}
-			context.getMetaData().setWebXml(webXml);
+			context.getMetaData().setWebXml( webXml );
 		} else {
-			logger.info( "Found extra web.xml, ignoring {}", url.toString() );
+			logger.info( "web.xml already set, ignoring {}", url.toString() );
 		}
 	}
 
-	public URL resolvedUrl( String resourceName , String offsetURL ) {
-		String url = !offsetURL.contains("!/") ? offsetURL = "jar:" + offsetURL + "!" : offsetURL;
+	private URL resolvedUrl( String url ) {
 		try {
-			return new URL(url + (url.endsWith("/")?"":"/") + resourceName);
+			return new URL( url.replace("file:/", applicationRoot) );
 		} catch (MalformedURLException e) {
-			throw new RuntimeException("Failed to convert url to offset URL :" + offsetURL, e);
+			throw new RuntimeException("Failed to convert url to offset URL :" + url, e);
 		}
 	}
 

@@ -1,0 +1,26 @@
+<Configuration packages="cd.connect" verbose="true">
+	<Appenders>
+		<Console name="STDOUT" target="SYSTEM_OUT">
+			<PatternLayout pattern="%-5p %d [%t] %c: %m%n"/>
+		</Console>
+	</Appenders>
+
+	<!-- You can set custom log levels per-package here -->
+	<Loggers>
+		<Logger name="com" level="info"/>
+		<Logger name="net" level="info"/>
+		<Logger name="org" level="info"/>
+		<Logger name="httpclient" level="info"/>
+
+		<Logger name="org.springframework.beans.factory" level="warn"/>
+		<Logger name="cd.connect" level="debug"/>
+
+		<Logger name="org.glassfish.jersey" level="finest"/>
+
+		<Logger name="jersey-tracing" level="finest"/>
+
+		<Root level="debug">
+			<AppenderRef ref="STDOUT"/>
+		</Root>
+	</Loggers>
+</Configuration>

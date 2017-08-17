@@ -40,8 +40,9 @@ public class WebAppRunner {
 	public static final String WEBAPP_RESPONSE_HEADER_SIZE = "webapp.header.response.size";
 	public static final String WEBAPP_HEADER_CACHE_SIZE = "webapp.header.cache.size";
 	public static final String WEBAPP_OUTPUT_BUFFER_SIZE = "webapp.output.buffer.size";
+	public static final String WEBAPP_PRE_SCANNED_RESOURCE_NAME = "webapp.prescan.config";
 
-	public static final String PRE_SCANNED_RESOURCE_NAME = "META-INF/resources/preScanned";
+	public static final String WEBAPP_PRE_SCANNED_RESOURCE_NAME_DEFAULT = "/META-INF/resources/preScanned";
 
 	public static final String WEBDEFAULT_XML = "cd/connect/war/webdefault.xml";
 	public static final String WEBDEFAULT_DEV_XML = "cd/connect/war/webdefault-dev.xml";
@@ -170,7 +171,7 @@ public class WebAppRunner {
 			context.setBaseResource(Resource.newResource(new URL("jar:file:" + war.getAbsolutePath() + "!/")));
 		}
 
-		boolean preScanned = war != null && getClass().getResource( PRE_SCANNED_RESOURCE_NAME ) != null;
+		boolean preScanned = war != null && getClass().getResource( getPreScanConfigProperty() ) != null;
 
 		context.setConfigurationClasses(getConfigurationClasses( preScanned ? JETTY_CONFIGURATION_CLASSES_PRESCANNED : JETTY_CONFIGURATION_CLASSES));
 
@@ -402,5 +403,9 @@ public class WebAppRunner {
 			// a shutdown when it's already happened because of a startup error.
 			latch.countDown();
 		}
+	}
+
+	public static String getPreScanConfigProperty(){
+		return System.getProperty( WEBAPP_PRE_SCANNED_RESOURCE_NAME, WEBAPP_PRE_SCANNED_RESOURCE_NAME_DEFAULT );
 	}
 }

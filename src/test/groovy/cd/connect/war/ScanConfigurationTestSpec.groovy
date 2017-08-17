@@ -1,6 +1,7 @@
 package cd.connect.war
 
 import com.bluetrainsoftware.classpathscanner.ResourceScanListener
+import org.eclipse.jetty.webapp.WebAppContext
 import spock.lang.Specification
 
 
@@ -18,7 +19,19 @@ class ScanConfigurationTestSpec extends Specification {
 
 		then:
 			result.first().toString().replaceAll("\\\\", "/").contains("src/test/resources/META-INF/resources")
-
 	}
+
+	void "funky monkey"() {
+		given: "we have a configuration scanner and some resources"
+			WebAppContext context = new WebAppContext( classLoader: this.class.classLoader )
+			ScanConfiguration scan = new ScanConfiguration()
+
+		when: "we scan"
+			scan.preConfigure( context )
+		then:
+			context
+	}
+
+
 
 }
