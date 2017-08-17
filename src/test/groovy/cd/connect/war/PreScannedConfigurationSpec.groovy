@@ -69,8 +69,7 @@ class PreScannedConfigurationSpec extends Specification {
 		then:
 			context.metaData.webXml.getResource().getURI().toString() == cfg.applicationRoot + 'WEB-INF/web.xml'
 			context.metaData.webInfJars.first().getURI().toString() == "${cfg.applicationRoot}jars/fragment.jar"
-			context.metaData.fragments.first()
-
+			context.metaData.fragments.first().name == 'fragmented'
 	}
 
 
