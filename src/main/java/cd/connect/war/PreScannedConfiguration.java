@@ -1,6 +1,5 @@
 package cd.connect.war;
 
-import com.bluetrainsoftware.classpathscanner.ResourceScanListener;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.ResourceCollection;
 import org.eclipse.jetty.webapp.AbstractConfiguration;
@@ -17,11 +16,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created 16/08/17. by
- *
- * @author karl
- */
 public class PreScannedConfiguration extends AbstractConfiguration {
 	public static String RESOURCE_URLS = "cd.connect.jetty.resource-urls";
 
@@ -81,18 +75,30 @@ public class PreScannedConfiguration extends AbstractConfiguration {
 					URL url = resolvedUrl( values[ 1 ] );
 					try {
 						switch ( key ){
-							case "webbase":
-								foundWebXml( context, url );
-								if ( context.getBaseResource() == null ) {
-									if ( logger.isDebugEnabled() ) {
-										logger.debug( "set base directory {}", url.toString() );
-									}
-									context.setBaseResource( Resource.newResource( url ) );  // add base directory
-								}
-								break;
-
 							case "webxml":
-								foundWebXml( context, url );
+								String parent = values[ 1 ].replace("WEB-INF/web.xml","");
+								Resource resource = Resource.newResource( url );
+								if ( context.getMetaData().getWebXml() == null ) {
+									webXml = resource;
+									if ( logger.isDebugEnabled() ) {
+										logger.debug( "Setting web.xml from {}", url.toString() );
+									}
+									context.getMetaData().setWebXml( webXml );
+								} else {
+									logger.info( "web.xml already set, ignoring {}", url.toString() );
+								}
+								if( parent.endsWith( "file:/" ) || parent.endsWith( "!/" ) ) {
+									// so it is in the root
+									if (context.getBaseResource() == null) {
+										if (logger.isDebugEnabled()) {
+											logger.debug("set base directory {}", url.toString());
+										}
+										context.setBaseResource( resource );  // add base directory
+									}
+								}
+
+
+								resources.add( Resource.newResource( resolvedUrl( parent ) ) );
 								break;
 
 							case "fragment":
@@ -110,6 +116,9 @@ public class PreScannedConfiguration extends AbstractConfiguration {
 								Resource fragmentResource = Resource.newResource( new URL( resourceURL ) );
 								context.getMetaData().addWebInfJar( fragmentResource );
 								context.getMetaData().addFragment( fragmentResource, Resource.newResource( url ) );
+
+								resources.add( Resource.newResource( resolvedUrl( values[1].replace( "web-fragment.xml","resources/"))));
+
 								break;
 
 							case "resource":
@@ -128,21 +137,9 @@ public class PreScannedConfiguration extends AbstractConfiguration {
 
 	}
 
-	private void foundWebXml( WebAppContext context , URL url ) throws Exception {
-		if ( context.getMetaData().getWebXml() == null ) {
-			webXml = Resource.newResource( url );
-			if ( logger.isDebugEnabled() ) {
-				logger.debug( "Setting web.xml from {}", url.toString() );
-			}
-			context.getMetaData().setWebXml( webXml );
-		} else {
-			logger.info( "web.xml already set, ignoring {}", url.toString() );
-		}
-	}
-
 	private URL resolvedUrl( String url ) {
 		try {
-			return new URL( url.replace("file:/", applicationRoot) );
+			return new URL( url.replaceFirst("file:/", applicationRoot) );
 		} catch (MalformedURLException e) {
 			throw new RuntimeException("Failed to convert url to offset URL :" + url, e);
 		}

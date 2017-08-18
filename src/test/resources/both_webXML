@@ -1,2 +1,2 @@
-webbase=file:/WEB-INF/web.xml
+webxml=file:/WEB-INF/web.xml
 webxml=file:/META-INF/resources/WEB-INF/web.xml

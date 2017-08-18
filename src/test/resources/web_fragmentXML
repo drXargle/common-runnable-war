@@ -1,2 +1,2 @@
-webbase=file:/WEB-INF/web.xml
+webxml=file:/WEB-INF/web.xml
 fragment=jar:file:/jars/fragment.jar!/META-INF/web-fragment.xml
