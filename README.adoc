@@ -8,16 +8,20 @@ use the "dev" `webdefault.xml` instead of the "prod" `webdefault.xml`
 The runtime scan can be skipped if a compile time prescan generated file `META-INF/resources/preScanned` is detected,
 and the app is running from inside a war file.
 
+`META-INF/resources/preScanned` is expected to be in the format of `keyword=path`. The path is expected to ne normalised
+the root of the resources i.e. `file:/META-INF/resources/WEB-INF/web.xml`
+
 .Sample META-INF/resources/preScanned
 ----
 webxml=file:/WEB-INF/web.xml
 fragment=jar:file:/jars/fragment.jar!/META-INF/web-fragment.xml
 ----
 
+
+[options="header"]
 |==========================================================
+| keyword  | function
 | webxml   | specifies the location of the web.xml
 | fragment | specifies the location of a web-fragment.xml
 | resource | specifies the location of a resource
 |==========================================================
-
-
