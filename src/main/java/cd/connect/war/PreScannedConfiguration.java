@@ -87,6 +87,7 @@ public class PreScannedConfiguration extends AbstractConfiguration {
 								} else {
 									logger.info( "web.xml already set, ignoring {}", url.toString() );
 								}
+
 								if( parent.endsWith( "file:/" ) || parent.endsWith( "!/" ) ) {
 									// so it is in the root
 									if (context.getBaseResource() == null) {
@@ -96,8 +97,6 @@ public class PreScannedConfiguration extends AbstractConfiguration {
 										context.setBaseResource( resource );  // add base directory
 									}
 								}
-
-
 								resources.add( Resource.newResource( resolvedUrl( parent ) ) );
 								break;
 
@@ -116,9 +115,7 @@ public class PreScannedConfiguration extends AbstractConfiguration {
 								Resource fragmentResource = Resource.newResource( new URL( resourceURL ) );
 								context.getMetaData().addWebInfJar( fragmentResource );
 								context.getMetaData().addFragment( fragmentResource, Resource.newResource( url ) );
-
 								resources.add( Resource.newResource( resolvedUrl( values[1].replace( "web-fragment.xml","resources/"))));
-
 								break;
 
 							case "resource":
