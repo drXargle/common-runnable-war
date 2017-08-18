@@ -1,4 +1,23 @@
 = Common Runnable War
 
-- Expects its static "run" method to be called with or without a war file attached. If no war file is attached, it will
-use the "dev" webdefault.xml instead of the "prod" webdefault.xml.
+Forked from University of Auckland Group Applications package https://github.com/uoa-group-applications/common-runnable-war[common-runnable-war]
+
+Expects its static "run" method to be called with or without a war file attached. If no war file is attached, it will
+use the "dev" `webdefault.xml` instead of the "prod" `webdefault.xml`
+
+The runtime scan can be skipped if a compile time prescan generated file `META-INF/resources/preScanned` is detected,
+and the app is running from inside a war file.
+
+.Sample META-INF/resources/preScanned
+----
+webxml=file:/WEB-INF/web.xml
+fragment=jar:file:/jars/fragment.jar!/META-INF/web-fragment.xml
+----
+
+|==========================================================
+| webxml   | specifies the location of the web.xml
+| fragment | specifies the location of a web-fragment.xml
+| resource | specifies the location of a resource
+|==========================================================
+
+
