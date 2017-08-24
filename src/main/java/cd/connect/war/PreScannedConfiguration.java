@@ -75,13 +75,11 @@ public class PreScannedConfiguration extends AbstractConfiguration {
 					URL url = resolvedUrl( values[ 1 ] );
 					switch ( key ){
 						case "webxml":
-							String parent = values[ 1 ].replace("WEB-INF/web.xml","");
+							String parent = values[ 1 ].replace( "WEB-INF/web.xml","" );
 							Resource resource = Resource.newResource( url );
 							if ( context.getMetaData().getWebXml() == null ) {
 								webXml = resource;
-								if ( logger.isDebugEnabled() ) {
-									logger.debug( "Setting web.xml from {}", url.toString() );
-								}
+								logger.debug( "Setting web.xml from {}", url.toString() );
 								context.getMetaData().setWebXml( webXml );
 							} else {
 								logger.info( "web.xml already set, ignoring {}", url.toString() );
@@ -89,23 +87,18 @@ public class PreScannedConfiguration extends AbstractConfiguration {
 
 							if( parent.endsWith( "file:/" ) || parent.endsWith( "!/" ) ) {
 								// so it is in the root
-								if (context.getBaseResource() == null) {
-									if (logger.isDebugEnabled()) {
-										logger.debug("set base directory {}", url.toString());
-									}
-									context.setBaseResource( resource );  // add base directory
+								if ( context.getBaseResource() == null ) {
+									logger.debug( "set base resource {}", url.toString() );
+									context.setBaseResource( resource );  // add base resource
 								}
 							}
 							resources.add( Resource.newResource( resolvedUrl( parent ) ) );
 							break;
 
 						case "fragment":
-							if (logger.isDebugEnabled()) {
-								logger.debug("included web fragment {}", url.toString());
-							}
-
+							logger.debug( "included web fragment {}", url.toString() );
 							String resourceURL = url.toString();
-							int bang = resourceURL.lastIndexOf('!');
+							int bang = resourceURL.lastIndexOf( '!' );
 							if( bang > 0 ){
 								// get rid of the 'jar:' and everything from the '!' onwards
 								resourceURL = resourceURL.substring( 4, bang );
@@ -119,6 +112,7 @@ public class PreScannedConfiguration extends AbstractConfiguration {
 							break;
 
 						case "resource":
+							logger.debug( "added resource {}", url.toString() );
 							resources.add( Resource.newResource( url ) );
 							break;
 					}
@@ -131,11 +125,13 @@ public class PreScannedConfiguration extends AbstractConfiguration {
 
 	}
 
-	private URL resolvedUrl( String url ) {
+	private URL resolvedUrl( String url ) throws MalformedURLException{
+		String full = url.replaceFirst( "file:/", applicationRoot );
 		try {
-			return new URL( url.replaceFirst("file:/", applicationRoot) );
-		} catch (MalformedURLException e) {
-			throw new RuntimeException("Failed to convert url to offset URL :" + url, e);
+			return new URL( full );
+		} catch ( MalformedURLException mue ) {
+			logger.warn( "Malformed URL detected : {}", full );
+			throw mue; // rethrow
 		}
 	}
 
