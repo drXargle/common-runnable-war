@@ -73,62 +73,59 @@ public class PreScannedConfiguration extends AbstractConfiguration {
 					String[] values = line.split("=");
 					String key = values[ 0 ].toLowerCase();
 					URL url = resolvedUrl( values[ 1 ] );
-					try {
-						switch ( key ){
-							case "webxml":
-								String parent = values[ 1 ].replace("WEB-INF/web.xml","");
-								Resource resource = Resource.newResource( url );
-								if ( context.getMetaData().getWebXml() == null ) {
-									webXml = resource;
-									if ( logger.isDebugEnabled() ) {
-										logger.debug( "Setting web.xml from {}", url.toString() );
+					switch ( key ){
+						case "webxml":
+							String parent = values[ 1 ].replace("WEB-INF/web.xml","");
+							Resource resource = Resource.newResource( url );
+							if ( context.getMetaData().getWebXml() == null ) {
+								webXml = resource;
+								if ( logger.isDebugEnabled() ) {
+									logger.debug( "Setting web.xml from {}", url.toString() );
+								}
+								context.getMetaData().setWebXml( webXml );
+							} else {
+								logger.info( "web.xml already set, ignoring {}", url.toString() );
+							}
+
+							if( parent.endsWith( "file:/" ) || parent.endsWith( "!/" ) ) {
+								// so it is in the root
+								if (context.getBaseResource() == null) {
+									if (logger.isDebugEnabled()) {
+										logger.debug("set base directory {}", url.toString());
 									}
-									context.getMetaData().setWebXml( webXml );
-								} else {
-									logger.info( "web.xml already set, ignoring {}", url.toString() );
+									context.setBaseResource( resource );  // add base directory
 								}
+							}
+							resources.add( Resource.newResource( resolvedUrl( parent ) ) );
+							break;
 
-								if( parent.endsWith( "file:/" ) || parent.endsWith( "!/" ) ) {
-									// so it is in the root
-									if (context.getBaseResource() == null) {
-										if (logger.isDebugEnabled()) {
-											logger.debug("set base directory {}", url.toString());
-										}
-										context.setBaseResource( resource );  // add base directory
-									}
-								}
-								resources.add( Resource.newResource( resolvedUrl( parent ) ) );
-								break;
+						case "fragment":
+							if (logger.isDebugEnabled()) {
+								logger.debug("included web fragment {}", url.toString());
+							}
 
-							case "fragment":
-								if (logger.isDebugEnabled()) {
-									logger.debug("included web fragment {}", url.toString());
-								}
+							String resourceURL = url.toString();
+							int bang = resourceURL.lastIndexOf('!');
+							if( bang > 0 ){
+								// get rid of the 'jar:' and everything from the '!' onwards
+								resourceURL = resourceURL.substring( 4, bang );
+							}
 
-								String resourceURL = url.toString();
-								int bang = resourceURL.lastIndexOf('!');
-								if( bang > 0 ){
-									// get rid of the 'jar:' and everything from the '!' onwards
-									resourceURL = resourceURL.substring( 4, bang );
-								}
+							Resource fragmentResource = Resource.newResource( new URL( resourceURL ) );
+							context.getMetaData().addWebInfJar( fragmentResource );
+							context.getMetaData().addFragment( fragmentResource, Resource.newResource( url ) );
+							// we shouldn't be adding any resource here as `META-INF/resource/` will show up as
+							// it's own resource= line...
+							break;
 
-								Resource fragmentResource = Resource.newResource( new URL( resourceURL ) );
-								context.getMetaData().addWebInfJar( fragmentResource );
-								context.getMetaData().addFragment( fragmentResource, Resource.newResource( url ) );
-								resources.add( Resource.newResource( resolvedUrl( values[1].replace( "web-fragment.xml","resources/"))));
-								break;
-
-							case "resource":
-								resources.add( Resource.newResource( url ) );
-								break;
-						}
-					} catch ( MalformedURLException mue ) {
-						logger.warn( "failed to process `{}`. may not wire up", line, mue );
+						case "resource":
+							resources.add( Resource.newResource( url ) );
+							break;
 					}
 				}
 			}
-		} catch ( IOException ioe ) {
-			logger.warn( "Problems loading {}", WebAppRunner.getPreScanConfigProperty(), ioe );
+		} catch ( Exception ex ) {
+			logger.warn( "Problems loading {}", WebAppRunner.getPreScanConfigProperty(), ex );
 			throw new RuntimeException( "Failed to load the prescan class mappings from " + WebAppRunner.getPreScanConfigProperty() );
 		}
 
